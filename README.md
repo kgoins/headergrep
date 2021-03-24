@@ -2,6 +2,7 @@
 A small tool for examining headers from a web request
 
 ## Features
+  * json output
   * curl like syntax
   * Header retrieval from arbitrary url
   * Configurable list of expected and unexpected headers
@@ -11,15 +12,11 @@ A small tool for examining headers from a web request
 
 ### Flags
   * `-k`: ignore cert issues
-  * `-H`: add header to outbound request
   * `-X`: specify http verb
+  * `-c`: config
 
 ### Config
 ```
-[expected]
-Strict-Transport-Security
-
-[unexpected]
-Server
-Device-Memory
+expected = ["Strict-Transport-Security"]
+unexpected = ["Server", "Device-Memory"]
 ```
