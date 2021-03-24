@@ -6,6 +6,10 @@ import (
 	"net/url"
 )
 
+// headerPlaceholder represents an "empty" header value
+// since http.Header.Get() returns "" if a header doesn't exist
+const headerPlaceholder string = " "
+
 type HeaderGrepper interface {
 	GetHeaders(url *url.URL) (RespHeaders, error)
 }
@@ -46,17 +50,21 @@ func (h HGrep) GetHeaders(url *url.URL) (respHeaders RespHeaders, err error) {
 	return h.BuildRespHeaders(resp), nil
 }
 
-func hasHeader(key string, header http.Header) bool {
-	return header.Get(key) != ""
+func (h HGrep) isExpected(key string) bool {
+	return h.Config.Expected.Get(key) == headerPlaceholder
+}
+
+func (h HGrep) isUnExpected(key string) bool {
+	return h.Config.UnExpected.Get(key) == headerPlaceholder
 }
 
 func (h HGrep) BuildRespHeaders(resp *http.Response) RespHeaders {
 	respHeaders := NewResponseHeaders()
 
 	for name, val := range resp.Header {
-		if hasHeader(name, h.Config.Expected) {
+		if h.isExpected(name) {
 			respHeaders.AddExpected(name, val)
-		} else if hasHeader(name, h.Config.UnExpected) {
+		} else if h.isUnExpected(name) {
 			respHeaders.AddUnExpected(name, val)
 		} else {
 			respHeaders.AddOther(name, val)

@@ -1,30 +1,28 @@
 package main
 
 import (
-	"bufio"
-	"net/http"
-	"net/textproto"
+	"errors"
 	"strings"
 
 	"github.com/kgoins/headergrep/headergrep"
 	"github.com/spf13/cobra"
 )
 
-func headersFromStrings(strs []string) (http.Header, error) {
+func strArrayFromViper(strs []string) ([]string, error) {
 	if len(strs) == 0 {
-		return make(http.Header), nil
+		return []string{}, nil
 	}
 
-	headerStr := strings.Join(strs, "\r\n")
-	strReader := bufio.NewReader(strings.NewReader(headerStr))
-	headerReader := textproto.NewReader(strReader)
-
-	header, err := headerReader.ReadMIMEHeader()
-	if err != nil {
-		return nil, err
+	if len(strs) != 1 {
+		return nil, errors.New("Invalid header format")
 	}
 
-	return http.Header(header), nil
+	baseStr := strs[0]
+	baseStr = strings.Trim(baseStr, "[")
+	baseStr = strings.Trim(baseStr, "]")
+
+	headerStrs := strings.Split(baseStr, " ")
+	return headerStrs, nil
 }
 
 func BuildConfigFromCmd(cmd *cobra.Command) (headergrep.Config, error) {
@@ -36,15 +34,17 @@ func BuildConfigFromCmd(cmd *cobra.Command) (headergrep.Config, error) {
 	unexpectedRaw, _ := cmd.Flags().GetStringArray("unexpected")
 
 	var err error
-	config.Expected, err = headersFromStrings(expectedRaw)
+	expected, err := strArrayFromViper(expectedRaw)
 	if err != nil {
 		return config, err
 	}
+	config.SetExpected(expected)
 
-	config.UnExpected, err = headersFromStrings(unexpectedRaw)
+	unexpected, err := strArrayFromViper(unexpectedRaw)
 	if err != nil {
 		return config, err
 	}
+	config.SetExpected(unexpected)
 
 	return config, nil
 }

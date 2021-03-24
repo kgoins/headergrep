@@ -19,14 +19,13 @@ var rootCmd = &cobra.Command{
 	Short: "A small tool for examining headers from a web request",
 	Args:  cobra.MinimumNArgs(1),
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		home, err := homedir.Dir()
+		sc := snakecharmer.NewSnakeCharmer("headergrep", ".headergrep")
+		configPath, err := getConfigFile(cmd)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Fatalln("Unable to get config file path")
 		}
 
-		sc := snakecharmer.NewSnakeCharmer("headergrep", ".headergrep")
-		sc.InitConfig(cmd, filepath.Join(home, ".headergrep"))
+		sc.InitConfig(cmd, configPath)
 		return
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -51,6 +50,20 @@ var rootCmd = &cobra.Command{
 			log.Fatalln("Unable to print headers: " + err.Error())
 		}
 	},
+}
+
+func getConfigFile(cmd *cobra.Command) (string, error) {
+	inputConfigPath, _ := cmd.Flags().GetString("config")
+	if inputConfigPath != "" {
+		return inputConfigPath, nil
+	}
+
+	home, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(home, ".headergrep"), nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

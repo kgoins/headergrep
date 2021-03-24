@@ -10,8 +10,8 @@ import (
 
 func getTestConfig() headergrep.Config {
 	config := headergrep.NewConfig()
-	config.Expected.Add("Content-Type", "application/json")
-	config.UnExpected.Add("Server", "Node")
+	config.SetExpected([]string{"Content-Type"})
+	config.SetUnExpected([]string{"Server"})
 
 	return config
 }
@@ -30,7 +30,7 @@ func TestBuildRespHeaders(t *testing.T) {
 	hg := headergrep.NewHGrep(config)
 	respHeaders := hg.BuildRespHeaders(resp)
 
-	rq.Equal(config.Expected, respHeaders.Expected)
-	rq.Equal(config.UnExpected, respHeaders.UnExpected)
+	rq.Len(respHeaders.Expected, 1)
+	rq.Len(respHeaders.UnExpected, 1)
 	rq.Len(respHeaders.Other, 1)
 }
