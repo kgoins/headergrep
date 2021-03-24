@@ -7,7 +7,7 @@ import (
 )
 
 type HeaderGrepper interface {
-	GetHeaders(url url.URL) (RespHeaders, error)
+	GetHeaders(url *url.URL) (RespHeaders, error)
 }
 
 type HGrep struct {
@@ -22,7 +22,7 @@ func NewHGrep(config Config) HGrep {
 	return HGrep{Config: config}
 }
 
-func (h HGrep) GetHeaders(url url.URL) (respHeaders RespHeaders, err error) {
+func (h HGrep) GetHeaders(url *url.URL) (respHeaders RespHeaders, err error) {
 	req, err := http.NewRequest(h.Method, url.String(), nil)
 	if err != nil {
 		return
