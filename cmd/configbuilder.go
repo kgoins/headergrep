@@ -44,7 +44,7 @@ func BuildConfigFromCmd(cmd *cobra.Command) (headergrep.Config, error) {
 	if err != nil {
 		return config, err
 	}
-	config.SetExpected(unexpected)
+	config.SetUnExpected(unexpected)
 
 	return config, nil
 }
