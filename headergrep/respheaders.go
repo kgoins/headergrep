@@ -8,6 +8,14 @@ type RespHeaders struct {
 	Other      http.Header
 }
 
+func NewResponseHeaders() RespHeaders {
+	return RespHeaders{
+		Expected:   make(http.Header),
+		UnExpected: make(http.Header),
+		Other:      make(http.Header),
+	}
+}
+
 func (rh RespHeaders) AddExpected(key string, vals []string) {
 	for _, val := range vals {
 		rh.Expected.Add(key, val)

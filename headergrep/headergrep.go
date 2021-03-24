@@ -50,7 +50,9 @@ func hasHeader(key string, header http.Header) bool {
 	return header.Get(key) != ""
 }
 
-func (h HGrep) BuildRespHeaders(resp *http.Response) (respHeaders RespHeaders) {
+func (h HGrep) BuildRespHeaders(resp *http.Response) RespHeaders {
+	respHeaders := NewResponseHeaders()
+
 	for name, val := range resp.Header {
 		if hasHeader(name, h.Config.Expected) {
 			respHeaders.AddExpected(name, val)
@@ -61,5 +63,5 @@ func (h HGrep) BuildRespHeaders(resp *http.Response) (respHeaders RespHeaders) {
 		}
 	}
 
-	return
+	return respHeaders
 }
